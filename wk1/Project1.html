@@ -14,12 +14,13 @@
             console.log("Hello World!")  // Hello woprld in console
             
             var newRectangleInstance = new Rectangle(20, 0, "rgb(0,255,0)");  // new instance of rectangle 1
-            var newRectangleInstance2 = new Rectangle(20, 0, "rgb(255,0,0)"); // new instance of rectangle 2
-            var newRectangleInstance3 = new Rectangle(20, 0, "rgb(0,0,255)"); // new instance of rectangle 3
+            var newRectangleInstance2 = new Rectangle(40, 0, "rgb(255,0,0)"); // new instance of rectangle 2
+            var newRectangleInstance3 = new Rectangle(60, 0, "rgb(0,0,255)"); // new instance of rectangle 3
             sceneList.push(newRectangleInstance,newRectangleInstance2,newRectangleInstance3);   // pushes 3 rectangles on to scene list
+            updateAndDraw()
         } 
 
-        function addRandomRect() 
+        function createRandRect() 
         {
             var x = Math.floor(Math.random() * 400); // random x coordinate
             var y = Math.floor(Math.random() * 400); // random y coordinate
@@ -30,41 +31,55 @@
         
             var color = "rgb("+r+","+ g+","+ b+")"; // random rgb value inputs
             
-            updateAndDraw(x,y,color);
-            // var newRandomRect = new Rectangle(20, 0, "rgb(0,0,255)"); // new instance of rectangle 3
+            var newRandomRect = new Rectangle(x,y,color); // new instance of rectangle
+            sceneList.push(newRandomRect);
         }
 
-        function updateAndDraw(x, y, color)
+        function clearRect()
         {
             var c = document.getElementById("myCanvas"); //<!--Draws Colored Squares-->
-            var ctx = c.getContext("2d"); // grabs 2d shape
-            ctx.fillStyle = color; //<!--chooses square color-->
-            ctx.fillRect(x, y, 50, 50); //<!--fills square color--> 
-            ctx.strokeRect(x, y, 50, 50); //<!--Draws Square Border-->
-            requestAnimationFrame(function() {
-                updateStats() // refresh statistics
-                addRandomRect(); // draws the rectangle
-                currentFrameNumber +=1 // increments frame number by 1
-            });
+                var ctx = c.getContext("2d"); // grabs 2d shape
+                ctx.clearRect(0,0,300,200);
+        }
+
+        function updateAndDraw()   // update and draw function
+        {
+            clearRect();
+            createRandRect();      // calls createRandRect
+
+            for (var i=0;i<sceneList.length;i++ ) { //For loop that iterates through sceneList stack
+                sceneList[i].draw();    // draws the rectangle
+                sceneList[i].update();  // updates rectangle velocity (y position)
+            }
+
+            currentFrameNumber +=1 // increments frame number by 1
+            updateStats() // refresh statistics
+            requestAnimationFrame(updateAndDraw); // refreshes and redraws this animation function
         }
 
         function Rectangle(x, y, color) // object to accept x,y, and color of rectangle
         {
-            var velocity={
-                x:0,
-                y:0
-            }
-            
             this.x = x;     
             this.y = y;
             this.color = color;
 
-            var update = function() {
-                velocity.y++;
-                this.y = this.y + velocity.y * 0.16;
-            }
+            var velocity={  // initiate rectangles coordinates
+                x:0,
+                y:0
+            };
 
-            updateAndDraw(x,y,color);
+            this.update = function() { // increments y axis to create falling appearance
+                velocity.y++;
+                this.y = this.y + velocity.y * 0.16; // speed at which the rectangles fall
+            };
+
+            this.draw = function() {
+                var c = document.getElementById("myCanvas"); //<!--Draws Colored Squares-->
+                var ctx = c.getContext("2d"); // grabs 2d shape
+                ctx.fillStyle = this.color; //<!--chooses square color-->
+                ctx.fillRect(this.x, this.y, 50, 50); //<!--fills square color--> 
+                ctx.strokeRect(this.x, this.y, 50, 50); //<!--Draws Square Border-->
+            }
         }
     
         function updateStats() // Displays current frame and rectangle counters
