@@ -47,7 +47,8 @@
             clearRect();
             createRandRect();      // calls createRandRect
 
-            for (var i=0;i<sceneList.length;i++ ) { //For loop that iterates through sceneList stack
+            for (var i=0;i<sceneList.length;i++ ) 
+            { //For loop that iterates through sceneList stack
                 sceneList[i].draw();    // draws the rectangle
                 sceneList[i].update();  // updates rectangle velocity (y position)
             }
@@ -55,6 +56,11 @@
             currentFrameNumber +=1 // increments frame number by 1
             updateStats() // refresh statistics
             requestAnimationFrame(updateAndDraw); // refreshes and redraws this animation function
+
+            if( sceneList.length >130)
+            {
+                sceneList.splice(0,130,new Rectangle(20,20,"rgb(0,255,0)"))
+            }
         }
 
         function Rectangle(x, y, color) // object to accept x,y, and color of rectangle
@@ -68,20 +74,25 @@
                 y:0
             };
 
-            this.update = function() { // increments y axis to create falling appearance
-                velocity.y++;
-                this.y = this.y + velocity.y * 0.16; // speed at which the rectangles fall
-            };
+            this.velocity = velocity;
 
-            this.draw = function() {
+        }
+    
+        Rectangle.prototype.draw= function() {
                 var c = document.getElementById("myCanvas"); //<!--Draws Colored Squares-->
                 var ctx = c.getContext("2d"); // grabs 2d shape
                 ctx.fillStyle = this.color; //<!--chooses square color-->
                 ctx.fillRect(this.x, this.y, 50, 50); //<!--fills square color--> 
                 ctx.strokeRect(this.x, this.y, 50, 50); //<!--Draws Square Border-->
             }
-        }
-    
+
+        Rectangle.prototype.update = function() { // increments y axis to create falling appearance
+                this.velocity.y++;
+                this.y = this.y + this.velocity.y * 0.16; // speed at which the rectangles fall
+                
+                
+            }; 
+
         function updateStats() // Displays current frame and rectangle counters
         {
             var p = document.getElementById("frameCount");
