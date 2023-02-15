@@ -88,18 +88,18 @@ Sphere.prototype = {
       distance: null, // should be of type Number (scalar)
     };
 
-    var a = r1.diriection.dot(r1.direction);
+    var a = r1.direction.dot(r1.direction);
     
-    var CenterToOrgin = new Vector3().fromTo(this.center,r1.origon);
+    var CenterToOrigin = new Vector3().fromTo(this.center,r1.origin);
 
-    var b = 2*CenterToOrgin.dot(r1.direction);
+    var b = 2*CenterToOrigin.dot(r1.direction);
 
-    var c = CenterToOrgin.dot(CenterToOrgin) - (this.radius*this.radius);
+    var c = CenterToOrigin.dot(CenterToOrigin) - (this.radius*this.radius);
 
     var discriminant = (b*b) - (4*a*c); 
 
 
-    if (discriminant<0)
+    if (discriminant>0)
     {
       return result;
     }
