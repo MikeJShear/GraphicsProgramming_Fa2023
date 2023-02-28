@@ -115,7 +115,21 @@ function updateAndRender(timeElapsed)
   // Go through every pixel
   // NOTE! You should only call setPixelColor once per pixel.  Otherwise, the
   // last time you call it will be the color and overwrite previous calls.
- 
+	var seconds = timeElapsed * 0.001; // convert milliseconds to seconds
+	lightPosition.x = Math.cos(seconds) * 0.5; // radius of 0.5
+	lightPosition.z = Math.sin(seconds) * 0.5; // radius of 0.5
+
+	if (lightPosition.sphereResult) 
+	{
+		setPixelColor(xPixelIndex, yPixelIndex, blur);
+	} 
+	else
+	{ 
+		setPixelColor(xPixelIndex, yPixelIndex, normalDotLight);
+	}
+
+
+
   for (var yPixelIndex = 0; yPixelIndex < pixelsDown; ++yPixelIndex) 
   {
 		for (var xPixelIndex = 0; xPixelIndex < pixelsAcross; ++xPixelIndex) 
@@ -131,33 +145,44 @@ function updateAndRender(timeElapsed)
 			// Uncomment when your sphere or plane code is ready
 			var sphereResult = sphere.raycast(pixelRay);
 			var planeResult = plane.raycast(pixelRay);
-			var Lp2 = lightPosition.clone();
+			//var Lp2 = lightPosition.clone().subtract(sphereResult.point);
 			
 			//determine which hit object is the closest (in case there is more than 1 hit)
 			if(sphereResult.hit && planeResult.hit)
 			{
 				if(planeResult.distance < sphereResult.distance)
 				{
-					setPixelColor(xPixelIndex, yPixelIndex, 0.5);
-					normalDotLight = sphereResult.normalize().subtract(Lp2);
+					var Lp2 = lightPosition.clone().subtract(planeResult.point);
+					Lp2.normalize();
+					normalDotLight = planeResult.normal.dot(Lp2);
+					setPixelColor(xPixelIndex, yPixelIndex, normalDotLight);
 					//normalDotLight = sphereResult.normalize().subtract(lightPosition.clone());
 					//setPixelColor(xPixelIndex, yPex, normalDotLight);
 				}
 				
 				if(sphereResult.distance < planeResult.distance)
 				{
-					setPixelColor(xPixelIndex, yPixelIndex, 0.8);
+					var Lp2 = lightPosition.clone().subtract(sphereResult.point);
+					Lp2.normalize();
+					normalDotLight = sphereResult.normal.dot(Lp2);
+					setPixelColor(xPixelIndex, yPixelIndex, normalDotLight);
 					//normalDotLight = // calculation here
 					//setPixelColor(xPixelIndex, yPex, normalDotLight);
 				}
 			}
 			else if(planeResult.hit){
-				setPixelColor(xPixelIndex, yPixelIndex, 0.5);
+				var Lp2 = lightPosition.clone().subtract(planeResult.point);
+				Lp2.normalize();
+				normalDotLight = planeResult.normal.dot(Lp2);
+				setPixelColor(xPixelIndex, yPixelIndex, normalDotLight);
 				//normalDotLight = // calculation here
 				//setPixelColor(xPixelIndex, yPex, normalDotLight);
 			}
 			else if(sphereResult.hit){
-			 	setPixelColor(xPixelIndex, yPixelIndex, 0.8);
+				var Lp2 = lightPosition.clone().subtract(sphereResult.point);
+				Lp2.normalize();
+				normalDotLight = sphereResult.normal.dot(Lp2);
+			 	setPixelColor(xPixelIndex, yPixelIndex, normalDotLight);
 				//normalDotLight = // calculation here
 				//setPixelColor(xPixelIndex, yPex, normalDotLight);
 			}
