@@ -191,12 +191,17 @@ function updateAndRender(timeElapsed)
 				// we didn't hit anything, choose an appropriate backbround color
 				setPixelColor(xPixelIndex, yPixelIndex, 0.1); // dark gray
 			}
-			//setPixelColor(xPixelIndex, yPixelIndex,0.1);
+			
 		}
 	}
 
 	// Take our array of color data and give to the canvas to display
 	canvasContext.putImageData(imageData, 0, 0);
+
+
+
+
+	
 
 	// Let the browser know it should call this function again when it's time to render
 	requestAnimationFrame(updateAndRender);

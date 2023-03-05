@@ -22,33 +22,9 @@ var Sphere = function(center, radius) {
 
   this.center = center;
   this.radius = radius;
+ 
 
-  // todo - make sure this.center and this.radius are replaced with default values if and only if they
-  // are invalid or undefined (i.e. center should be of type Vector3 & radius should be a Number)
-  // - the default center should be the zero vector
-  // - the default radius should be 1
-  // YOUR CODE HERE
-  if(this.center == null ){
-    this.center = new Vector3();
-  }
-  if(this.radius == null){
-    this.radius = 1;
-  }
-
-  // Sanity checks (your modification should be above this)
-  if (!(this.center instanceof Vector3)) {
-    console.error("The sphere center must be a Vector3");
-  }
-
-  if ((typeof(this.radius) != 'number')) {
-    console.error("The radius must be a Number");
-  }
-};
-Sphere.prototype = {
-  
-  //----------------------------------------------------------------------------- 
-  raycast: function(r1) {
-    // todo - determine whether the ray intersects has a VALID intersection with this
+  // todo - determine whether the ray intersects has a VALID intersection with this
 	//        sphere and if so, where. A valid intersection is on the is in front of
 	//        the ray and whose origin is NOT inside the sphere
 
@@ -81,6 +57,39 @@ Sphere.prototype = {
 
     // An object created from a literal that we will return as our result
     // Replace the null values in the properties below with the right values
+
+  // todo - make sure this.center and this.radius are replaced with default values if and only if they
+  // are invalid or undefined (i.e. center should be of type Vector3 & radius should be a Number)
+  // - the default center should be the zero vector
+  // - the default radius should be 1
+  // YOUR CODE HERE
+  if(this.center == null ){
+    this.center = new Vector3(0,0,0);
+  }
+  if(this.radius == null){
+    this.radius = 1;
+  }
+
+  // Sanity checks (your modification should be above this)
+  if (!(this.center instanceof Vector3)) {
+    console.error("The sphere center must be a Vector3");
+  }
+
+  if ((typeof(this.radius) != 'number')) {
+    console.error("The radius must be a Number");
+  }
+};
+
+Sphere.prototype = {
+  
+  //----------------------------------------------------------------------------- 
+  raycast: function(r1) 
+  {
+    var CenterToOrigin = new Vector3().fromTo(this.center,r1.origin);
+    var a = r1.direction.dot(r1.direction);
+    var b = r1.direction.clone().multiplyScalar(2).dot(CenterToOrigin);
+    var c = CenterToOrigin.dot(CenterToOrigin) - (this.radius*this.radius);
+
     var result = {
       hit: false,      // should be of type Boolean
       point: null,    // should be of type Vector3
@@ -88,24 +97,34 @@ Sphere.prototype = {
       distance: null, // should be of type Number (scalar)
     };
 
-    var a = r1.direction.dot(r1.direction);
+    var discriminant = (b*b) - (4*a*c); // b^2-4ac
     
-    var CenterToOrigin = new Vector3().fromTo(this.center,r1.origin);
-
-    var b = 2*CenterToOrigin.dot(r1.direction);
-
-    var c = CenterToOrigin.dot(CenterToOrigin) - (this.radius*this.radius);
-
-    var discriminant = (b*b) - (4*a*c); 
-
-
-    if (discriminant>0)
+    if (discriminant<0)
     {
       return result;
     }
 
+    // both answers for the quadratic formula
+    var e = ((-b -(Math.sqrt(discriminant)))/(2*a));   // (-b - (sqrt b*b - 4ac))/2a quadratic formula
+    var f = ((-b+(Math.sqrt(discriminant)))/(2*a));   // (-b + (sqrt b*b - 4ac))/2a quadratic formula
+
+   
+    if (e > 0 && f > 0)
+    {
+      var g = (e < f) ? e: f;
+      var difference = r1.clone().direction.multiplyScalar(g);
+
+      result.hit = true;
+      result.point = r1.origin.clone().add(difference);
+      result.normal = (result.point.clone().subtract(this.center)).normalize();
+      result.distance = difference.length();
+
+
+    }
+
     return result;
+  
   }
-}
+};
 
 // EOF 00100001-10
