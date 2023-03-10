@@ -81,13 +81,10 @@ Matrix4.prototype = {
     // todo
     // set the result vector values to be the result of multiplying the
     // vector v by 'this' matrix
-    result.x = v*(this.elements[0]) + v*(this.elements[1]) + v*(this.elements[2]) + v*(this.elements[3]);
-    
-    result.y = v*(this.elements[4]) + v*(this.elements[5]) + v*(this.elements[6]) + v*(this.elements[7]); 
-   
-    result.z = v*(this.elements[8]) + v*(this.elements[9]) + v*(this.elements[10]) + v*(this.elements[11]);
-   
-    result.w = v*(this.elements[12]) + v*(this.elements[13]) + v*(this.elements[14]) + v*(this.elements[15]);
+    result.x = v.x*(this.elements[0]) + v.y*(this.elements[1]) + v.z*(this.elements[2]) + v.w*(this.elements[3]);
+    result.y = v.x*(this.elements[4]) + v.y*(this.elements[5]) + v.z*(this.elements[6]) + v.w*(this.elements[7]); 
+    result.z = v.x*(this.elements[8]) + v.y*(this.elements[9]) + v.z*(this.elements[10]) + v.w*(this.elements[11]);
+    result.w = v.x*(this.elements[12]) + v.y*(this.elements[13]) + v.z*(this.elements[14]) + v.w*(this.elements[15]);
     
     return result;
   },
@@ -100,6 +97,20 @@ Matrix4.prototype = {
     }
 
     // todo - multiply 'this' * rightSideMatrix
+    var c1 = new Vector4(rightSideMatrix.elements[0], rightSideMatrix.elements[4], rightSideMatrix.elements[8],rightSideMatrix.elements[12]);
+    var c2 = new Vector4(rightSideMatrix.elements[1], rightSideMatrix.elements[5], rightSideMatrix.elements[9],rightSideMatrix.elements[13]);
+    var c3 = new Vector4(rightSideMatrix.elements[2], rightSideMatrix.elements[6], rightSideMatrix.elements[10],rightSideMatrix.elements[14]);
+    var c4 = new Vector4(rightSideMatrix.elements[3], rightSideMatrix.elements[7], rightSideMatrix.elements[11],rightSideMatrix.elements[15]);
+    
+    var r1 = new Vector4(this.elements[0], this.elements[1], this.elements[2], this.elements[3]);
+    var r2 = new Vector4(this.elements[4], this.elements[5], this.elements[6], this.elements[7]);
+    var r3 = new Vector4(this.elements[8], this.elements[9], this.elements[10], this.elements[11]);
+    var r4 = new Vector4(this.elements[12], this.elements[13], this.elements[14], this.elements[15]);
+
+    this.set(r1.dot(c1), r1.dot(c2), r1.dot(c3), r1.dot(c4), 
+             r2.dot(c1), r2.dot(c2), r2.dot(c3), r2.dot(c4), 
+             r3.dot(c1), r3.dot(c2), r3.dot(c3), r3.dot(c4),
+             r4.dot(c1), r4.dot(c2), r4.dot(c3), r4.dot(c4));
     return this;
   },
 
@@ -112,18 +123,28 @@ Matrix4.prototype = {
   // -------------------------------------------------------------------------
   makeScale: function(x, y, z) {
     // todo make this matrix into a pure scale matrix based on (x, y, z)
+    this.makeIdentity();
+    this.elements[0] = x;
+    this.elements[5] = y;
+    this.elements[10] = z;
     return this;
   },
 
   // -------------------------------------------------------------------------
   makeRotationX: function(degrees) {
     // todo - convert to radians
-    // var radians = ...
+    var radians = degrees * (Math.PI/180);
 
     // shortcut - use in place of this.elements
     var e = this.elements;
 
     // todo - set every element of this matrix to be a rotation around the x-axis
+    this.makeIdentity();
+    e[5] = Math.cos(radians);
+    e[6] = - Math.sin(radians);
+    e[9] = Math.sin(radians);
+    e[10] = Math.cos(radians);
+    
 
     return this;
   },
@@ -131,25 +152,34 @@ Matrix4.prototype = {
   // -------------------------------------------------------------------------
   makeRotationY: function(degrees) {
     // todo - convert to radians
-    // var radians = ...
+    var radians = degrees * (Math.PI/180);
 
     // shortcut - use in place of this.elements
     var e = this.elements;
 
     // todo - set every element of this matrix to be a rotation around the y-axis
-
+    this.makeIdentity();
+    e[0] = Math.cos(radians);
+    e[2] = Math.sin(radians);
+    e[8] = - Math.sin(radians);
+    e[10] = Math.cos(radians);
     return this;
   },
 
   // -------------------------------------------------------------------------
   makeRotationZ: function(degrees) {
     // todo - convert to radians
-    // var radians = ...
+    var radians = degrees * (Math.PI/180);
 
     // shortcut - use in place of this.elements
     var e = this.elements;
 
     // todo - set every element of this matrix to be a rotation around the z-axis
+    this.makeIdentity();
+    e[0] = Math.cos(radians);
+    e[1] = - Math.sin(radians);
+    e[4] = Math.sin(radians);
+    e[5] = Math.cos(radians);
     return this;
   },
 
