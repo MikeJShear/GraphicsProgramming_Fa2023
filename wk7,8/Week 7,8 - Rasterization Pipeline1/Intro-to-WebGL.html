@@ -17,6 +17,8 @@
     uniform mat4 uProjectionMatrix;
 
     varying vec3 vColor;
+	
+	attribute vec3 aVertexColor;
 
     void main(void) {
         gl_Position =
@@ -26,7 +28,7 @@
             vec4(aVertexPosition, 1.0); // treat the vertex as a point, multiply right to left
 
         // todo #8
-        vColor = vec3(0.0, 0.0, 0.0);
+        vColor = aVertexColor;
     }
 </script>
 
@@ -120,25 +122,25 @@
 			var vertexShaderText = document.getElementById("shader-vs").textContent;
 
 			// todo #3
-			var fragmentShaderText = document.getElementById("shader-vs").textContent;
+			var fragmentShaderText = document.getElementById("shader-fs").textContent;
 
 			// todo #4 - uncomment when directed
-			// var vertexShader = createCompiledShader(gl, vertexShaderText, gl.VERTEX_SHADER);
+			 var vertexShader = createCompiledShader(gl, vertexShaderText, gl.VERTEX_SHADER);
 
 			// todo #4 - uncomment when directed
-			// var fragmentShader = createCompiledShader(gl, fragmentShaderText, gl.FRAGMENT_SHADER);
+			 var fragmentShader = createCompiledShader(gl, fragmentShaderText, gl.FRAGMENT_SHADER);
 
 			// todo #5 - delete the "return" line below when instructed by the guide
-			return;
+			//return;
 
 			// todo #5
 			// Create an empty gl "program" which will be composed of compiled shaders
 			shaderProgram = gl.createProgram();
-			gl.attachShader(shaderProgram, /* todo #5 - arg2*/);
-			gl.attachShader(shaderProgram, /* todo #5 - arg2*/);
+			gl.attachShader(shaderProgram, fragmentShader);
+			gl.attachShader(shaderProgram, vertexShader);
 
 			// Tell gl it's ready to go, link it
-			gl.linkProgram(/* todo #5 - arg1*/);
+			gl.linkProgram(shaderProgram);
 			if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
 				alert("Could not initialise shaders");
 			}
@@ -154,6 +156,8 @@
 
 			// todo #9
 			// Get a reference to the color attribute variable in the vertex shader and enable it
+			shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+			gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
 			shaderProgram.worldMatrixUniform = gl.getUniformLocation(shaderProgram, "uWorldMatrix");
 			shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, "uViewMatrix");
@@ -165,8 +169,8 @@
 			var shader = gl.createShader(shaderType);
 
 			// todo #4 - uncomment this when ready to implement
-			// gl.shaderSource(/* todo argument 1*/, /* todo argument 2*/);
-			// gl.compileShader(/* todo argument 1*/);
+			 gl.shaderSource(shader,shaderText);
+			 gl.compileShader(shader);
 
 			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 				alert(gl.getShaderInfoLog(shader));
@@ -202,11 +206,25 @@
 
 			// todo
 			// 1. create color buffer
+			//triangleGeometry.colorBuffer = newColorBuffer;
 			// 2. bind color buffer
+			var newColorBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER,newColorBuffer);
 			// 3. create color array
+			var colors = [
+				1.0, 0.0, 0.0, // (vertex 1: x, y, z)
+				0.0, 1.0, 0.0, // (vertex 2: x, y, z)
+				0.0, 0.0, 1.0  // (vertex 3: x, y, z)
+			 ];
 			// 4. "buffer" color data
+			gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(colors),gl.STATIC_DRAW);
 			// 5. store a reference to the color buffer on the triangleGeometry object
-			//    triangleGeometry.colorBuffer = ??;
+			    triangleGeometry.colorBuffer = newColorBuffer;
+
+			// var positionColor = gl.createColor();
+			// gl.bindColor(gl.ARRAY_BUFFER, positionColor);
+			
+			// triangleGeometry.colorBuffer = newColorBuffer;
 		}
 
 		// -------------------------------------------------------------------------
@@ -264,7 +282,9 @@
 			gl.clearColor(0.707, 0.707, 1, 1.0);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-			 //renderTriangle(0);
+			 renderTriangle(0);
+			 projectionMatrix.makePerspective(45,768/512,0.1,1000)
+
 			// renderLines();
 		}
 
@@ -281,6 +301,9 @@
 			// 2. reset view matrix to identity
 			// 3. set the projection matrix using values from online guide
 
+			triangleGeometry.worldMatrix.makeIdentity;
+			triangleGeometry.worldMatrix.makeTranslation(0,0,-7);
+
 			gl.bindBuffer(gl.ARRAY_BUFFER, triangleGeometry.positionBuffer);
 			gl.vertexAttribPointer(
 				triangleGeometry.shaderProgram.vertexPositionAttribute,
@@ -292,6 +315,17 @@
 			);
 
 			// todo #10 - map the color buffer similar to the position buffer above
+
+			gl.bindBuffer(gl.ARRAY_BUFFER,triangleGeometry.colorBuffer);
+
+			gl.vertexAttribPointer(
+				triangleGeometry.shaderProgram.vertexColorAttribute,
+				3,
+				gl.FLOAT,
+				gl.FALSE,
+				0, // stride - used for mixing data in a single buffer, ignore
+				0  // offset - used for mixing data in a single buffer, ignore
+			);
 
 			// Send our matrices to the shader
 			gl.uniformMatrix4fv(shaderProgram.worldMatrixUniform, false, triangleGeometry.worldMatrix.clone().transpose().elements);
