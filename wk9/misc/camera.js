@@ -15,7 +15,7 @@ function Camera(input) {
         // todo #6 - pull out the forward direction from the world matrix and return as a vector
         //         - recall that the camera looks in the "backwards" direction
         
-        return new Vector3(worldMatrix.elements[2, 6, 10]);
+        return new Vector3(this.cameraWorldMatrix.elements[2, 6, 10]);
     }
     // -------------------------------------------------------------------------
     this.update = function(dt) {
@@ -23,23 +23,30 @@ function Camera(input) {
 
         if (input.up) {
             // todo #7 - move the camera position a little bit in its forward direction
+            this.cameraPosition.z -= .01;
         }
 
         if (input.down) {
             // todo #7 - move the camera position a little bit in its backward direction
+            this.cameraPosition.z += .01;
         }
 
         if (input.left) {
-            // todo #8 - add a little bit to the current camera yaw
+          this.cameraYaw += 0.1;
         }
 
         if (input.right) {
             // todo #8 - subtract a little bit from the current camera yaw
+            this.cameraYaw -= 0.1;
+
         }
 
         // todo #7 - create the cameraWorldMatrix from scratch based on this.cameraPosition
-
+        
+        return this.cameraWorldMatrix.makeTranslation(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
         // todo #8 - create a rotation matrix based on cameraYaw and apply it to the cameraWorldMatrix
+
+        return this.cameraWorldMatrix.multiply(this.cameraWorldMatrix.makeRotationY(this.cameraYaw));
         // (order matters!)
     }
 }
