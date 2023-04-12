@@ -17,6 +17,7 @@ void main(void) {
     //gl_FragColor = vec4(vTextureCoodinates, 0.0, uAlpha);
 
     gl_FragColor =texture2D(uTexture,vTextureCoodinates);
+    gl_FragColor.a = uAlpha;
 }
 
 // EOF 00100001-10
