@@ -13,6 +13,7 @@ var barrelGeometry = null;
 
 var projectionMatrix = new Matrix4();
 var lightPosition = new Vector4(4, 1.5, 0, 0);
+var lightSphere = new Vector4(4, 1.5, 0, 0);
 
 // the shader that will be used by each piece of geometry (they could each use their own shader but in this case it will be the same)
 var phongShaderProgram;
@@ -159,7 +160,7 @@ function updateAndRender() {
     var rotationMatrix = pitchMatrix.clone().multiply(yawMatrix);
 
     lightPosition = rotationMatrix.multiplyVector(lightPosition);
-
+    lightSphere = rotationMatrix.multiplyVector
     time.update();
     camera.update(time.deltaTime);
 
